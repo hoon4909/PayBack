@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #f4f4f4;
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .calculator {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      transition: transform 0.3s ease;
+    }
+
+    .logo {
+      max-width: 100%;
+      margin-bottom: 20px;
+      border-radius: 50%;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      transition: border-color 0.3s ease;
+    }
+
+    input:hover, input:focus {
+      border-color: #4caf50;
+    }
+
+    button {
+      background-color: #0067FF;
+      color: #fff;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold; /* 글자를 굵게 설정 */
+      transition: background-color 0.3s ease;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    button:hover {
+      background-color: #0067DD;
+    }
+
+    #resultPopup {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .popup-content {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      text-align: center;
+     }
+
+    .popup-button {
+      background-color: #0067FF;
+      color: #fff;
+      padding: 14px 18px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold; /* 글자를 굵게 설정 */
+      margin-top: 10px;
+      transition: background-color 0.3s ease;
+      width: 100%;
+    }
+
+    .popup-button:hover {
+      background-color: #0067DD;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 30px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .navigation-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .navigation-buttons button {
+      width: 48%;
+    }
+  </style>
+  <title>테터프렌즈 페이백 계산기</title>
+</head>
+<body>
+
+  <div class="calculator">
+    <img src="path/to/your/logo.png" alt="테터프렌즈 로고" class="logo">
+    <h1>테터프렌즈 페이백 계산기</h1>
+
+    <!-- Step 1: 시드머니 입력 -->
+    <div id="step1">
+      <div class="input-group">
+        <label for="seedMoney">시드머니를 입력해주세요. (USDT)</label>
+        <input type="number" id="seedMoney" placeholder="양수만 입력" min="0" required>
+      </div>
+      <button onclick="nextStep('step2')">다음</button>
+    </div>
+
+    <!-- Step 2: 레버리지 입력 -->
+    <div id="step2" style="display: none;">
+      <div class="input-group">
+        <label for="leverage">주로 사용하시는 레버리지를 입력해주세요.</label>
+        <input type="number" id="leverage" placeholder="1 - 125" min="1" max="125" required>
+      </div>
+      <div class="navigation-buttons">
+        <button onclick="prevStep('step1')">이전</button>
+        <button onclick="nextStep('step3')">다음</button>
+      </div>
+    </div>
+
+    <!-- Step 3: 하루 평균 매매 횟수 입력 -->
+    <div id="step3" style="display: none;">
+      <div class="input-group">
+        <label for="tradesPerDay">하루 평균 매매 횟수를 입력해주세요.</label>
+        <input type="number" id="tradesPerDay" placeholder="양수만 입력" min="0" required>
+      </div>
+      <div class="navigation-buttons">
+        <button onclick="prevStep('step2')">이전</button>
+        <button onclick="calculatePayback()">계산하기</button>
+      </div>
+    </div>
+
+    <!-- 결과 팝업 -->
+<div id="resultPopup">
+  <div class="popup-content">
+    <img src="path/to/your/logo.png" alt="테터프렌즈 로고" class="logo">
+    <h1>예상 페이백</h1>
+    <div id="result"></div>
+    <div class="popup-buttons">
+    <button class="popup-button" onclick="closePopup()">다시 계산하기</button>
+    <button class="popup-button" onclick="navigateToPaybackPage()">페이백 받기</button>     
+  </div>
+</div>
+
+  </div>
+
+  <script>
+    function nextStep(step) {
+      // 현재 단계를 숨김
+      document.getElementById('step1').style.display = 'none';
+      document.getElementById('step2').style.display = 'none';
+      document.getElementById('step3').style.display = 'none';
+
+      // 다음 단계를 보임
+      document.getElementById(step).style.display = 'block';
+    }
+
+    function prevStep(step) {
+      // 현재 단계를 숨김
+      document.getElementById('step1').style.display = 'none';
+      document.getElementById('step2').style.display = 'none';
+      document.getElementById('step3').style.display = 'none';
+
+      // 이전 단계를 보임
+      document.getElementById(step).style.display = 'block';
+    }
+
+    function calculatePayback() {
+      const seedMoney = parseFloat(document.getElementById('seedMoney').value);
+      const leverage = parseFloat(document.getElementById('leverage').value);
+      const tradesPerDay = parseFloat(document.getElementById('tradesPerDay').value);
+
+      // 계산 로직은 이전과 동일하게 유지
+      const payback = (seedMoney * leverage * 0.0004 * tradesPerDay) / 2 * 30;
+
+      // 결과를 팝업으로 표시
+      const resultElement = document.getElementById('result');
+      resultElement.innerHTML = `${payback.toLocaleString()} USDT`;
+      document.getElementById('resultPopup').style.display = 'flex';
+    }
+
+    function closePopup() {
+      // 팝업을 닫음
+      document.getElementById('resultPopup').style.display = 'none';
+
+      // 입력값 초기화
+      document.getElementById('seedMoney').value = '';
+      document.getElementById('leverage').value = '';
+      document.getElementById('tradesPerDay').value = '';
+
+      // 첫 페이지로 이동
+      nextStep('step1');
+    }
+    
+    function navigateToPaybackPage() {
+    // 외부 링크로 이동
+    window.location.href = 'https://www.naver.com';
+  }
+  </script>
+</body>
+</html>
